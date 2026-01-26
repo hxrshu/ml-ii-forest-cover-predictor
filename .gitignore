@@ -1,0 +1,6 @@
+.DS_Store
+*.csv
+
+__pycache__/
+.ipynb_checkpoints
+catboost_info/*
