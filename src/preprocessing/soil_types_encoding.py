@@ -45,7 +45,9 @@ TEXT_SOIL_TYPES_ENCODING = """1: ELU 2702, Cathedral family - Rock outcrop compl
 def get_soil_type_mapping(text_encoding=TEXT_SOIL_TYPES_ENCODING):
     mapping = {}
     for line in text_encoding.split("\n"):
-        tokens = line.split(" ")  # Split only on the first space to handle spaces in values
+        tokens = line.split(
+            " "
+        )  # Split only on the first space to handle spaces in values
         soil_type_id = int(tokens[0].rstrip(":"))  # Remove the colon and convert to int
         elu_code = tokens[2].rstrip(",")  # Remove the comma and convert to int
         climatic_zone = int(elu_code[0])
@@ -54,13 +56,15 @@ def get_soil_type_mapping(text_encoding=TEXT_SOIL_TYPES_ENCODING):
         mapping[soil_type_id] = {
             # "elu_code": elu_code,
             "climatic_zone": climatic_zone,
-            "geologic_zone": geologic_zone
+            "geologic_zone": geologic_zone,
         }
     df_mapping = pd.DataFrame.from_dict(mapping, orient="index")
     df_mapping.index.name = "soil_type_id"
     return df_mapping
 
+
 df_soil_type_mapping = get_soil_type_mapping()
+
 
 def add_soil_type_breakdown(df_data, soil_type_mapping=df_soil_type_mapping):
     df_raw = df_data.copy()
@@ -79,8 +83,17 @@ def add_soil_type_breakdown(df_data, soil_type_mapping=df_soil_type_mapping):
         soil_type_mapping, left_on="Soil_Type", right_index=True, how="left"
     )
     # df_pcd = df_pcd.drop(columns=["Soil_Type"])
-    df_pcd = pd.get_dummies(df_pcd, columns=["Soil_Type", "climatic_zone", "geologic_zone"], dtype=int)
+    df_pcd = pd.get_dummies(
+        df_pcd, columns=["Soil_Type", "climatic_zone", "geologic_zone"], dtype=int
+    )
     # df_pcd = pd.get_dummies(df_pcd, columns=["climatic_zone", "geologic_zone"], dtype=int)
     df_pcd = df_pcd.set_index("id").reindex(df_raw.index)
 
     return df_pcd
+
+
+def remove_soil_type_columns(df):
+    df = df.copy()
+    soil_type_cols = [col for col in df.columns if col.startswith("Soil_Type")]
+    df.drop(columns=soil_type_cols, inplace=True)
+    return df

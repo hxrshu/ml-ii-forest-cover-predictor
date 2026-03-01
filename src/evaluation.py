@@ -1,4 +1,5 @@
-from sklearn.model_selection import StratifiedKFold, cross_validate
+from sklearn.model_selection import StratifiedKFold, cross_validate, cross_val_predict
+
 
 def evaluate_model_performance(model, X, y, n_folds=5, n_jobs=-1):
     kf = StratifiedKFold(n_splits=n_folds)
@@ -16,3 +17,15 @@ def evaluate_model_performance(model, X, y, n_folds=5, n_jobs=-1):
     print(f"Train Balanced Accuracy: {train_score:.4f}")
     print(f"Validate Balanced Accuracy: {validate_score:.4f}")
     return train_score, validate_score
+
+
+def get_val_predictions(model, X, y, n_folds=5, n_jobs=-1):
+    kf = StratifiedKFold(n_splits=n_folds)
+    predictions = cross_val_predict(
+        model,
+        X,
+        y,
+        cv=kf,
+        n_jobs=n_jobs,
+    )
+    return predictions
